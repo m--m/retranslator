@@ -1,0 +1,43 @@
+<?php
+$i=1;
+class Retranslator {
+
+    public function loadFile($filename) {
+       global $i;
+        $h = fopen("$filename-translate.html.php", "w");
+        $hmark = fopen("marks.csv", "a");
+        $rows = file($filename);
+        foreach ($rows as $key => $row) {
+
+
+            preg_match_all('/[а-яА-ЯЁё «»();!?,\/._:-]{2,1024}/u', $row, $matches);
+
+            foreach ($matches as $items) {
+           
+                foreach ($items as $text) {
+                    preg_match_all('/[а-яА-ЯЁё]{1,1024}/u', $text, $abc);
+                    if(isset($abc[0][0])) {
+                         $mark = "{tran-" . $i . "}";
+                  
+                    $row = str_replace ($text, $mark, $row);
+                  
+                    fwrite($hmark, $filename."|".($key+1).'|'.$mark . "|" . $text . "\n");
+                    $i++;
+                    }
+                   
+                }
+                  fwrite($h, $row);
+            }
+           
+        }
+        fclose($h);
+        fclose($hmark);
+    }
+
+}
+/*
+	Example
+*/
+$re = new Retranslator();
+$re->loadFile("general_rules.html.php");
+$re->loadFile("types_of_delivery.html.php");
